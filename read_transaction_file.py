@@ -20,7 +20,7 @@ def split_transactions_into_different_bus_services(transactions):
     return [(group_name, get_group(group_name)) for group_name in bus_service_groups.groups] # grouped_transactions =
     # map(write_to_files, grouped_transactions)
 
-def write_to_files(pair, directory_name='real_datall'):
+def write_to_files(pair, directory_name='grouped'):
     create_directory_if_doesnt_exist(directory_name)
     pair[1].to_csv("%s/bus%s_01022016" % (directory_name, pair[0]), sep=',', index=None)
 
