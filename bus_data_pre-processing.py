@@ -10,24 +10,30 @@ def handle_all_the_files(number_of_processes):
     handle_files(list_of_files, number_of_processes)
 
 def handle_files(list_of_files, number_of_processes):
-    # p = Pool(number_of_processes)
-    # p.map(worker, list_of_files)
     start_time = time()
     for filename in list_of_files:
         start_worker_time = time()
         print '[START]\t %s \tat %f' % (filename, time() - start_time)
-        read_transaction_file.handle_transaction_file(filename)
-        print '[END]\t %s \tafter %f seconds' % (filename, time() - start_worker_time)
-    execution_time = time() - start_time
 
+        splitted_transactions = read_transaction_file.handle_transaction_file(filename)
+        p = Pool(number_of_processes)
+        p.map(worker, list_of_files)
+        print '[END]\t %s \tafter %f seconds' % (filename, time() - start_worker_time)
+
+    execution_time = time() - start_time
     print '\n\nexecution time: %f  =  %d hours %d minutes %s seconds' % (execution_time, int(execution_time / 3600), int(execution_time / 60) % 60, int(execution_time) % 60)
 
+def print_information(start_time=0, duration=0, file='logfile'):
+    pass
+
+def handle_one_day_transaction_file(filename):
+    pass
 
 def worker(filename):
     start_worker_time = time()
-    print '[START]\t %s' % filename
+    print '\t[START]\t %s' % filename
     read_transaction_file.handle_transaction_file(filename, args.directory_name)
-    print '[END]\t %s after %f seconds' % (filename, time() - start_worker_time)
+    print '\t[END]\t %s after %f seconds' % (filename, time() - start_worker_time)
 
 
 if __name__=='__main__':
