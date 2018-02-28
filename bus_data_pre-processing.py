@@ -10,14 +10,24 @@ def handle_all_the_files(number_of_processes):
     handle_files(list_of_files, number_of_processes)
 
 def handle_files(list_of_files, number_of_processes):
-    p = Pool(number_of_processes)
-    p.map(worker, list_of_files)
+    # p = Pool(number_of_processes)
+    # p.map(worker, list_of_files)
+    start_time = time()
+    for filename in list_of_files:
+        start_worker_time = time()
+        print '[START]\t %s \tat %f' % (filename, time() - start_time)
+        read_transaction_file.handle_transaction_file(filename)
+        print '[END]\t %s \tafter %f seconds' % (filename, time() - start_worker_time)
+    execution_time = time() - start_time
+
+    print '\n\nexecution time: %f  =  %d hours %d minutes %s seconds' % (execution_time, int(execution_time / 3600), int(execution_time / 60) % 60, int(execution_time) % 60)
+
 
 def worker(filename):
     start_worker_time = time()
-    print "[START]\t %s" % filename
+    print '[START]\t %s' % filename
     read_transaction_file.handle_transaction_file(filename, args.directory_name)
-    print "[END]\t %s after %f seconds" % (filename, time() - start_worker_time)
+    print '[END]\t %s after %f seconds' % (filename, time() - start_worker_time)
 
 
 if __name__=='__main__':
@@ -28,7 +38,7 @@ if __name__=='__main__':
     parser.add_argument('-l','--list', dest='list_of_files', nargs='+',
                         help='specify list of files to be processed without commas')
     parser.add_argument('-p', '--processes', dest='number_of_processes', type=int, action='store',
-                        default=4, help='number of processes for files processing')
+                        default=2, help='number of processes for files processing')
     parser.add_argument('-d', '--directory', dest='directory_name', action='store',
                         default='grouped', help='name of directory for generated files')
     args = parser.parse_args()
