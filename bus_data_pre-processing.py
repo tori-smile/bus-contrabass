@@ -3,6 +3,7 @@ from glob import glob
 from multiprocessing import Pool
 from time import time
 import read_transaction_file
+from service_handling import handle_bus_service_transactions
 
 def handle_all_the_files(number_of_processes):
     default_file_pattern = '/home/student/DailyTripsFeb-2016/2016-02-*-EZ.csv'
@@ -14,26 +15,24 @@ def handle_files(list_of_files, number_of_processes):
     for filename in list_of_files:
         start_worker_time = time()
         print '[START]\t %s \tat %f' % (filename, time() - start_time)
-
-        splitted_transactions = read_transaction_file.handle_transaction_file(filename)
-        p = Pool(number_of_processes)
-        p.map(worker, list_of_files)
+        handle_one_day_transaction_file(filename, number_of_processes)
         print '[END]\t %s \tafter %f seconds' % (filename, time() - start_worker_time)
 
     execution_time = time() - start_time
     print '\n\nexecution time: %f  =  %d hours %d minutes %s seconds' % (execution_time, int(execution_time / 3600), int(execution_time / 60) % 60, int(execution_time) % 60)
 
-def print_information(start_time=0, duration=0, file='logfile'):
-    pass
+def handle_one_day_transaction_file(filename, number_of_processes):
+    splitted_transactions = read_transaction_file.handle_transaction_file(filename)
+    p = Pool(number_of_processes)
+    p.map(worker, splitted_transactions)
 
-def handle_one_day_transaction_file(filename):
-    pass
-
-def worker(filename):
+def worker((bus_service, df)):
     start_worker_time = time()
-    print '\t[START]\t %s' % filename
-    read_transaction_file.handle_transaction_file(filename, args.directory_name)
-    print '\t[END]\t %s after %f seconds' % (filename, time() - start_worker_time)
+    print '\t[START]\t %s' % bus_service
+    result = handle_bus_service_transactions(df)
+    print '\t[RUNNING]\t %s finished sorting' % bus_service
+    # read_transaction_file.handle_transaction_file(filename, args.directory_name)
+    print '\t[END]\t %s after %f seconds' % (bus_service, time() - start_worker_time)
 
 
 if __name__=='__main__':
@@ -41,10 +40,10 @@ if __name__=='__main__':
 
     parser.add_argument('-a','--all', dest='all_files_processing', action='store_true',
                         help='processing all the files. Using this option may take a lot of time')
-    parser.add_argument('-l','--list', dest='list_of_files', nargs='+',
+    parser.add_argument('-l','--list', dest='list_of_files', nargs='+', default=['2016-02-01-EZ.test.csv'],
                         help='specify list of files to be processed without commas')
     parser.add_argument('-p', '--processes', dest='number_of_processes', type=int, action='store',
-                        default=2, help='number of processes for files processing')
+                        default=8, help='number of processes for files processing')
     parser.add_argument('-d', '--directory', dest='directory_name', action='store',
                         default='grouped', help='name of directory for generated files')
     args = parser.parse_args()
