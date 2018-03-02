@@ -6,7 +6,7 @@ import read_transaction_file
 from service_handling import handle_bus_service_transactions
 
 def handle_all_the_files(number_of_processes):
-    default_file_pattern = '/home/student/DailyTripsFeb-2016/2016-02-*-EZ.csv'
+    default_file_pattern = 'buses_only/2016-02-*-EZ.csv'
     list_of_files = glob(default_file_pattern)
     handle_files(list_of_files, number_of_processes)
 
@@ -29,7 +29,7 @@ def handle_one_day_transaction_file(filename, number_of_processes):
 def worker((bus_service, df)):
     start_worker_time = time()
     print '\t[START]\t %s' % bus_service
-    result = handle_bus_service_transactions(df)
+    result = handle_bus_service_transactions(df, bus_service)
     print '\t[RUNNING]\t %s finished sorting' % bus_service
     # read_transaction_file.handle_transaction_file(filename, args.directory_name)
     print '\t[END]\t %s after %f seconds' % (bus_service, time() - start_worker_time)
