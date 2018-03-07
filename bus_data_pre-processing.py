@@ -9,7 +9,7 @@ from read_transaction_file import handle_transaction_file
 from service_handling import handle_bus_service_transactions
 
 def handle_all_the_files():
-    default_file_pattern = 'buses_only/2016-02-*-EZ.csv'
+    default_file_pattern = 'only_buses/2016-02-*-EZ.csv'
     list_of_files = glob(default_file_pattern)
     handle_files(list_of_files)
 
