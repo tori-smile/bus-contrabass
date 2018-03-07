@@ -1,7 +1,9 @@
+#!/usr/bin/python
 import argparse
 from glob import glob
 from multiprocessing import Pool
 from time import time
+import os
 from helper import create_directory_if_doesnt_exist
 from read_transaction_file import handle_transaction_file
 from service_handling import handle_bus_service_transactions
@@ -38,12 +40,17 @@ def worker((bus_service, df, date)):
     print '\t[START]\t %s' % bus_service
     result = handle_bus_service_transactions(df)
     print '\t[RUNNING]\t %s finished sorting' % bus_service
-    create_directory_if_doesnt_exist(args.directory_name)
-    result.to_csv('%s/bus%s_%s' % (args.directory_name, bus_service.strip(), date), index=None)
+    write_dataframe_to_csv_file(result, '%s/bus%s_%s' % (args.directory_name, bus_service.strip(), date))
     number_of_passengers = calculate_number_of_passengers(df)
-    create_directory_if_doesnt_exist(args.directory_name + "_number_of_passengers")
-    number_of_passengers.to_csv('%s/bus%s_%s' % (args.directory_name + "_number_of_passengers", bus_service.strip(), date), index=None)
+    write_dataframe_to_csv_file(number_of_passengers, '%s/bus%s_%s' % (args.directory_name + "_number_of_passengers", bus_service.strip(), date))
     print '\t[END]\t %s after %f seconds' % (bus_service, time() - start_worker_time)
+
+def write_dataframe_to_csv_file(df, filepath):
+    try:
+        df.to_csv(filepath, index=None)
+    except IOError as e:
+        os.makedirs(os.path.dirname(filepath))
+        write_dataframe_to_csv_file(df, filepath)
 
 def calculate_number_of_passengers(bus_service_transactions):
     return bus_service_transactions.groupby(['bus_registration_number', 'bus_trip_number'])['boarding_station'].count().to_frame(name='count').reset_index()
