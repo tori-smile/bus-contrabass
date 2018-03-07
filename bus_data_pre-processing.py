@@ -7,7 +7,6 @@ import os
 from helper import create_directory_if_doesnt_exist
 from read_transaction_file import handle_transaction_file
 from service_handling import handle_bus_service_transactions
-import progressbar
 
 def handle_all_the_files():
     default_file_pattern = 'buses_only/2016-02-*-EZ.csv'
@@ -28,14 +27,9 @@ def handle_files(list_of_files):
 def handle_one_day_transaction_file(filepath):
     splitted_transactions = handle_transaction_file(filepath, args.prepared_files)
     p = Pool(args.number_of_processes)
-    bar = progressbar.ProgressBar(max_value=len(splitted_transactions))
     p.map(worker, splitted_transactions)
 
 def worker((bus_service, df, date)):
-    global counter
-    counter += 1
-    if counter % 10 == 0:
-        bar.update(counter)
     start_worker_time = time()
     print '\t[START]\t %s' % bus_service
     result = handle_bus_service_transactions(df)
@@ -56,8 +50,6 @@ def calculate_number_of_passengers(bus_service_transactions):
     return bus_service_transactions.groupby(['bus_registration_number', 'bus_trip_number'])['boarding_station'].count().to_frame(name='count').reset_index()
 
 if __name__=='__main__':
-    bar = progressbar.ProgressBar()
-    counter = 0
     parser = argparse.ArgumentParser(description='What kind of work do you prefer ?')
 
     parser.add_argument('-a','--all', dest='all_files_processing', action='store_true',
