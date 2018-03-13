@@ -1,6 +1,6 @@
 import pandas as pd
 from glob import glob
-from time import time
+from time import time, gmtime, strftime
 import progressbar
 
 
@@ -9,15 +9,22 @@ def handle_files(filepattern):
     files = glob(filepattern)
     bar = progressbar.ProgressBar()
     for filename in bar(files):
+        # print filename
         bus_transactions = pd.read_csv(filename)
         bus_transactions['datetime'] = bus_transactions['time'].apply(to_datetime)
-        value = get_filter_value(bus_transactions.loc[0]['datetime'])
+        try:
+            current_date = bus_transactions.iloc[0]['datetime']
+        except IndexError as e:
+            print filename
+            continue
+
+        value = get_filter_value(current_date)
         append_df = bus_transactions[bus_transactions.time < value]
         bus_transactions = bus_transactions[bus_transactions.time >= value]
         bus_transactions.to_csv(filename, index=None)
-        date = get_previous_date(bus_transactions.iloc[0]['datetime'])
-        append_filename = filepattern[:-9] + date
-        # print "append_filename: %s" % append_filename
+        date = get_previous_date(current_date)
+        append_filename = filename[:-10] + date
+        # print "\t->: %s" % append_filename
 
         with open('%s' % append_filename, 'a') as f:
             append_df.to_csv(f, header=False, index=None)
@@ -41,5 +48,8 @@ def get_previous_date(current_time):
     return str((current_time - pd.Timedelta(seconds=3600*24)).date())
 
 if __name__=='__main__':
-    filepattern = 'test_separation/*'
+    filepattern = 'test_splitted/*'
+    print "  === FILE CHANGING ==="
+    change_files(filepattern)
+    print "  === FILE HANDLING ==="
     handle_files(filepattern)

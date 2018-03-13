@@ -11,6 +11,7 @@ def handle_transaction_file(filepath, columns_are_already_removed=True):
 
 def read_card_transaction_file(filepath, columns_are_already_removed=True):
     transactions = pd.read_csv(filepath)
+    # transactions = pd.read_csv(filepath, header=None)
     if not columns_are_already_removed:
         transactions = transactions[transactions[3] != 'RTS']
         transactions.drop(transactions.columns[[0, 1, 2, 3, 6, 14]], axis = 1, inplace = True)

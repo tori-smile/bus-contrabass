@@ -7,7 +7,7 @@ def handle_bus_service_transactions(bus_service_transactions):
     alighting = handle_timestamp_column(bus_service_transactions, 'alighting')
 
     bus_service_transactions = boarding.append(alighting)
-    replace_00_to_24_hours(bus_service_transactions)
+    # replace_00_to_24_hours(bus_service_transactions)
     bus_service_transactions.dropna(inplace = True)
     bus_service_transactions.sort_values(by=['time'], inplace=True, kind='mergesort')
 
